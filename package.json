@@ -1,0 +1,19 @@
+{
+  "name": "game-server",
+  "version": "1.0.0",
+  "description": "server for multiplayer games",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "craftyjs": "^0.6.3",
+    "engine.io": "^1.5.1",
+    "express": "^4.13.0",
+    "moonboots-express": "^3.0.0",
+    "primus": "^3.1.1",
+    "Crafty-develop": ""
+  }
+}
