@@ -6,15 +6,14 @@ Crafty.c('Hero', {
         this.id = Math.random();
         this.addComponent("2D, Canvas, Collision, Fourway, Solid");
         this.addComponent("2D, DOM, Text");
-        this.text(this.id);
         
+        this.x = 640/2;
+        this.y = 480/2;
         this.w = 20;
         this.h = 20;
         //this.color = 'black';
         //this.fourway = 3;
         //this.id = '';
-        
-        
         
         this.bind('Moved', function(pos){
             primus.write({
@@ -40,6 +39,11 @@ Crafty.c('Hero', {
     
     setId: function(id) {
         this.id = id;
+        return this; // return entity allows method chaining
+    },
+    
+    setText: function(mytext) {
+        this.text(mytext);
         return this; // return entity allows method chaining
     },
     
