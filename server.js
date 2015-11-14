@@ -2,7 +2,7 @@ var express = require('express')();
 var server = require('http').Server(express);
 var Primus = require('primus');
 var Moonboots = require('moonboots-express');
-var Crafty = require('Crafty-develop')();
+var Crafty = require('./vendor/Crafty-develop')();
 var Components = require('./components');
 var _ = require('lodash');
 
