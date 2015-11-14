@@ -1,33 +1,38 @@
-var Crafty = require('craftyjs');
-var primus = Primus.connect();
+/* global primus */
+var stage = require('../game_config.json').stage;
 
-Crafty.c('Hero', {
+/*
+One problem here is that we're executing a primus.write even on "Moved", which would also be used by the server.
+That's probably a better event to have on the UI side of things, though that makes the suffix UI perhaps misleading.
+Maybe change heroUI to heroClient
+*/
+
+module.exports = {
     init: function(){
-        this.id = Math.random();
-        this.addComponent("2D, Canvas, Collision, Fourway, Solid");
-        this.addComponent("2D, DOM, Text");
+        this.addComponent("2D, Collision, Solid");
         
-        this.x = 640/2;
-        this.y = 480/2;
+        this.id = Math.random();
+        console.log('new hero created with id: '+this.id);
+        
+        this.x = stage.width/2;
+        this.y = stage.height/2;
+        
         this.w = 20;
         this.h = 20;
-        //this.color = 'black';
-        //this.fourway = 3;
-        //this.id = '';
         
-        this.bind('Moved', function(pos){
+        this.score = 0;
+        
+        this.collision();
+        this.onHit('Mob', function(data) {
+            /*data.forEach(function(object) {
+                console.log("hero.js onHit Mob: " + object);
+            });*/
+            this.score++;
             primus.write({
-                event: 'heroMoved',
+                event: 'heroHitMob',
                 id: this.id,
-                x: pos.x,
-                y: pos.y
+                score: this.score
             });
-        });
-        
-        primus.write({
-            id: this.id,
-            x : this.x,
-            y : this.y
         });
     },
     
@@ -42,11 +47,6 @@ Crafty.c('Hero', {
         return this; // return entity allows method chaining
     },
     
-    setText: function(mytext) {
-        this.text(mytext);
-        return this; // return entity allows method chaining
-    },
-    
     // Tell server new Hero has been created
     sendHero: function() {
         primus.write({
@@ -55,4 +55,4 @@ Crafty.c('Hero', {
             y : this.e.y
         });
     }
-});
+}

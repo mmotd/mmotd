@@ -3,126 +3,129 @@ var server = require('http').Server(express);
 var Primus = require('primus');
 var Moonboots = require('moonboots-express');
 var Crafty = require('Crafty-develop')();
+var Components = require('./components');
 var _ = require('lodash');
 
-var WORLD_SIZE_X = 640;
-var WORLD_SIZE_Y = 480;
+var config = require('./game_config.json');
 
 var primus = new Primus(server, {
     transformer: 'engine.io'
 });
 
-/**
- * Mobs
- */
-var mobs = [];
-
-Crafty.c('Mob',{
-    init: function() {
-        this.addComponent("2D, Canvas, Collision");
-        this.w = 10;
-        this.h = 10;
-        this.id = Math.random();
-        
-        this.onHit("Hero", function() {
-            primus.write({ event:'mobHit' });
-            this.destroy();
-        });
-        
-        this.bind("EnterFrame", function(eventData) {
-            // Y
-            if (this.y < WORLD_SIZE_Y/2) { this.y = this.y + 10 * (eventData.dt / 1000); }
-            else if (this.y > WORLD_SIZE_Y/2) { this.y = this.y - 10 * (eventData.dt / 1000); }
-            // X
-            if (this.x < WORLD_SIZE_X/2) { this.x = this.x + 10 * (eventData.dt / 1000); }
-            else if (this.x > WORLD_SIZE_X/2) { this.x = this.x - 10 * (eventData.dt / 1000); }
-        });
-    },
-    
-    xy: function(x, y) {
-        this.x = x;
-        this.y = y;
-        return this; // return entity allows method chaining
-    }
+//Load base components
+_.forEach(Components, function(v,k){ 
+    if(!/UI$/.test(k)){ Crafty.c(k,v) }
 });
 
-var newMobInterval = setInterval(function() {
-    if (mobs.length < 100) {
-        var new_mob = Crafty.e('Mob').xy(
-            Math.floor(Math.random() * WORLD_SIZE_X),
-            Math.floor(Math.random() * WORLD_SIZE_Y)
-        );
-        mobs.push(new_mob);
-            
-        primus.write({
-             worldEvent: 'newMob',
-             data: {
-                 id: new_mob.id,
-                 x: new_mob.x,
-                 y: new_mob.y
-             }
-        });
-    }
- }, 3000);
- 
- // Broadcast world update
-var updateMobsInterval = setInterval(function() {
-    primus.write({
-        worldEvent: 'updateMobs',
-        mobs: _.map(mobs, function(mob) { return _.pick(mob, 'id', 'x', 'y'); })
-    });
-    console.log('server.js: sent updateMobs mobs.length:' + mobs.length);
- }, 1000);
 
+/**
+ * World
+ */
+var world = {
+    entities: []
+};
+
+/** World Update Loop **/
+// This is mostly handled by Crafty?
+
+var newMobInterval = setInterval(function() {
+    world.entities.push({
+        'type' : 'mob',
+        'object' : Crafty.e('Mob').xy(
+            Math.floor(Math.random() * config.stage.width),
+            Math.floor(Math.random() * config.stage.height)
+        )
+    });
+}, 2000);
+    
+/** Server Update Loop **/
+// Process queue of messages from clients:
+// processQueue();
+    
+/** Client Update Loop **/
+// Send world update to clients
+var updateLoop = setInterval(function(){
+    var worldUpdate = _.cloneDeep(world);
+    
+    worldUpdate.entities.forEach(function(el, index, obj) {
+        if (el.type == 'mob') {
+           el.object = _.pick(el.object, 'id', 'x', 'y');
+        }
+        obj[index] = el;
+    });
+    
+    primus.write({
+        world: worldUpdate
+    });
+     
+ }, 14);
 
 //Should this logic even happen after a 'connection' event?
 primus.on('connection', function(spark){
     
-    /**
-     * New client connection
-     *
-    // Send all mobs info to all clients for every on same page
-    primus.write({
-        action: 'updateMobs',
-        mobs: 'mobsdatahere' //@todo doesn't like when I try to send mobs array here at 'mobsdatahere'
-    })*/
-    
-    //When a client sends data to the server, a "spark", do stuff:
+    /** Process Spark from Clients **/
     spark.on('data', function(data){
 
         switch (data.event) {
             
+            /**
+             * Hero Events
+             */
+            case 'heroDisconnect':
+                console.log('server.js: received event: ' + data.event + ' id: ' + data.id);
+                primus.write({
+                    worldEvent: 'heroDisconnect',
+                    hero: data
+                });
+                break;
+                
+            case 'heroHitMob':
+                console.log('server.js: received event: ' + data.event + ' id: ' + data.id + ' score: ' + data.score);
+                primus.write({
+                    worldEvent: 'heroHitMob',
+                    hero: data
+                });
+                break;
+            
             case 'heroMoved':
-                //console.log('server.js: received event: ' + data.event + ' id: ' + data.id);
+                //console.log('server.js: received event: ' + data.event + ' id: ' + data.id + ' name: ' + data.name + ' x:'+data.x + ' y:'+data.y);
                 primus.write({
                     worldEvent: 'heroMoved',
                     hero: data
                 });
                 break;
-                
+            
+            /**
+             * Mob Events
+             */
             case 'mobHit':
                 //console.log('server.js: mob hit! id: ' + data.id);
-                mobs.forEach(function(element, index, array) {
-                    if (data.id == element.id) {
-                        element.destroy();
-                        array.splice(index,1);
-                        //console.log('server.js: destroyed mobs[id=' + index + ']');
-                        primus.write({
-                            worldEvent:'deadMob',
-                            id : element.id
-                        })
+                world.entities.forEach(function(el, index, array) {
+                    if (el.type === 'mob') {
+                        if (data.id == el.object.id) {
+                            console.log("obj: " + el.object.hitpoints);
+                            array[index].object.destroy();
+                            //el.object.destroy();
+                            array.splice(index,1);
+                            //console.log('server.js: destroyed mobs[id=' + index + ']');
+                            primus.write({
+                                worldEvent:'deadMob',
+                                id : el.object.id
+                            });
+                        }    
                     }
                 });
+                
                 break;
                 
-        }//switch
+        }
 
     });
     
 });
 
 primus.on('disconnection', function (spark) {
-
+    
 });
 
 

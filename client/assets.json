@@ -1,0 +1,11 @@
+module.exports = {
+    "sprites": {
+        "./images/BubbleBobble.gif" : {
+            "tile": 5,
+            "tileh": 5
+            "map": {
+                "bub": [0,0]
+            }
+        }
+    }
+}

@@ -1,31 +1,82 @@
-var Crafty = require('craftyjs');
-var primus = Primus.connect();
-require('./components/mob');
-require('./components/hero');
-//var _ = require('lodash');
-//ar UUID = require('node-uuid');
+var Crafty = require('Crafty-develop');
+var Components = require('./components');
+var config = require('./game_config.json');
+var stage = config.stage;
+
+var _ = require('lodash');
+/* global primus */
+//require('./components/heroUI_test')();
 
 module.exports = function(){
-
-    var STAGE_X = 640;
-    var STAGE_Y = 480;
-    
-    var clients = [];
-    var heros = [];
-    var mobs = [];
     
     // Initialize Crafty
-    Crafty.init(STAGE_X, STAGE_Y);
+    Crafty.init(stage.width, stage.height);
     Crafty.background('#00FF00 url(http://fc02.deviantart.net/fs70/f/2013/162/0/1/grass_tile_1_by_blackyinwolf1234-d68mmht.png) repeat');
+    //Crafty.load()
+    //Load component definitions (keep eye on this to make sure it loads all base compoenents before UI)
+    _.forEach(Components, function(v,k){
+        Crafty.c(k,v);
+    });
 
-    var myHero = Crafty.e('Hero').fourway(3).addComponent('Color').color('blue').collision();
-    var self = this;
+    var heros = [];
+    var mobs = [];
+
+    var myHero = Crafty.e('MyHero');
+    var myScoreboard = Crafty.e('Scoreboard');
+    
+    console.log(Crafty.settings.get('autoPause'));
+    
+    window.addEventListener('beforeunload', function(){
+        primus.write({
+            event: 'heroDisconnect',
+            id: myHero.id
+        });
+    });
+    
     primus.on('data', function(data){
         console.log(data);
+        // process worldState updateLoop from server
+        if (typeof data.world != 'undefined') {
+            console.log("client received updateLoop from server");
+            
+            worldMobs = _.filter(data.world.entities, function(entity) {
+                return entity.type === 'mob';
+            });
+            worldMobObjects = _.pluck(worldMobs, 'object');
+                
+            /*** Mobs Update ***/
+            worldMobObjects.forEach(function(worldMob) {
+                var inClientMobs = null;
+                mobs.forEach(function(clientMob) {
+                    if (clientMob.id == worldMob.id) {
+                        inClientMobs = true;
+                    }
+                });
+                if (!inClientMobs) {
+                    mobs.push(Crafty.e('MobUI').setId(worldMob.id).xy(worldMob.x,worldMob.y));
+                }
+
+            });
+        }
         
-        // worldEvent received from server so update client.
         switch (data.worldEvent) {
+            
+            case 'heroDisconnect':
+                heros.forEach(function(hero) {
+                        if (hero.id == data.hero.id) {
+                            hero.destroy();
+                        }
+                    });
+                break;
+            
+            case 'heroHitMob':
+                if (data.hero.id == myHero.id) {
+                    myScoreboard.setText("Score: " + data.hero.score);
+                }
+                break;
+                
             case 'heroMoved':
+                //console.log('hero moved' + data.hero);
                 if (data.hero.id != myHero.id) {
                     var inHeros = null;
                     heros.forEach(function(hero) {
@@ -36,37 +87,29 @@ module.exports = function(){
                         }
                     });
                     if (!inHeros) {
-                        heros.push(Crafty.e('Hero')
+                        console.log('new hero from server has id:'+ data.hero.id);
+                        heros.push(Crafty.e('HeroUI')
                                 .setId(data.hero.id)
                                 .xy(data.hero.x,data.hero.y)
-                                .addComponent('Color') 
-                                .color('grey')
                         );
                     }
                 }
                 break;
                 
-            case 'newMob':
-                mobs.push(Crafty.e('Mob').setId(data.data.id).xy(data.data.x,data.data.y).addComponent('Color').color('orange'));
-                break;
-            
-            case 'updateMobs':
-                console.log('game.js: client received worldEvent:updateMobs mobs: ' + data.mobs);
+            /*case 'updateMobs':
                 data.mobs.forEach(function(serverMob) {
                     var inClientMobs = null;
                     mobs.forEach(function(clientMob) {
                         if (clientMob.id == serverMob.id) {
                             inClientMobs = true;
-                            //clientMob.x = serverMob.x;
-                            //clientMob.y = serverMob.y;
                         }
                     });
                     if (!inClientMobs) {
-                        mobs.push(Crafty.e('Mob').setId(serverMob.id).xy(serverMob.x,serverMob.y).addComponent('Color').color('orange'));
+                        mobs.push(Crafty.e('MobUI').setId(serverMob.id).xy(serverMob.x,serverMob.y));
                     }
 
                 });
-                break;
+                break;*/
             
             case 'deadMob':
                 mobs.forEach(function(element, index, array) {
@@ -77,6 +120,6 @@ module.exports = function(){
                 break;
         }
         
-    });//primus on data
+    });
     
 };

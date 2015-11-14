@@ -1,8 +1,9 @@
-//var primus = Primus.connect();
-//var Crafty = require('craftyjs');
+/* global Primus */
 var game = require('../game');
+
 window.onload = function(){
 
-game();
+    window.primus = Primus.connect();
+    game();
     
 }
