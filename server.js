@@ -28,7 +28,7 @@ var world = {
 /** World Update Loop **/
 // This is mostly handled by Crafty?
 
-var newMobInterval = setInterval(function() {
+function makeMob() {
     world.entities.push({
         'type' : 'mob',
         'object' : Crafty.e('Mob').xy(
@@ -36,7 +36,25 @@ var newMobInterval = setInterval(function() {
             Math.floor(Math.random() * config.stage.height)
         )
     });
-}, 2000);
+}
+
+var newMobInterval = setInterval(function() {
+    var mob_count = _.countBy(world.entities, function(entity) {
+        return entity['type'] == 'mob';
+    })['true'];
+    mob_count = parseInt(mob_count ? mob_count : 0);
+    
+    if (mob_count < 10) {
+        world.entities.push({
+            'type' : 'mob',
+            'object' : Crafty.e('Mob').xy(
+                Math.floor(Math.random() * config.stage.width),
+                Math.floor(Math.random() * config.stage.height)
+            )
+    });
+    }
+    
+}, 1000);
     
 /** Server Update Loop **/
 // Process queue of messages from clients:

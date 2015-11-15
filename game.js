@@ -24,7 +24,7 @@ module.exports = function(){
     var myHero = Crafty.e('MyHero');
     var myScoreboard = Crafty.e('Scoreboard');
     
-    console.log(Crafty.settings.get('autoPause'));
+    //console.log(Crafty.settings.get('autoPause'));
     
     window.addEventListener('beforeunload', function(){
         primus.write({
@@ -34,10 +34,10 @@ module.exports = function(){
     });
     
     primus.on('data', function(data){
-        console.log(data);
+        //console.log(data);
         // process worldState updateLoop from server
         if (typeof data.world != 'undefined') {
-            console.log("client received updateLoop from server");
+            //console.log("client received updateLoop from server");
             
             worldMobs = _.filter(data.world.entities, function(entity) {
                 return entity.type === 'mob';
@@ -87,7 +87,7 @@ module.exports = function(){
                         }
                     });
                     if (!inHeros) {
-                        console.log('new hero from server has id:'+ data.hero.id);
+                        //console.log('new hero from server has id:'+ data.hero.id);
                         heros.push(Crafty.e('HeroUI')
                                 .setId(data.hero.id)
                                 .xy(data.hero.x,data.hero.y)

@@ -12,7 +12,7 @@ module.exports = {
         this.addComponent("2D, Collision, Solid");
         
         this.id = Math.random();
-        console.log('new hero created with id: '+this.id);
+        //console.log('new hero created with id: '+this.id);
         
         this.x = stage.width/2;
         this.y = stage.height/2;
