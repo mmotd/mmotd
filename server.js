@@ -146,7 +146,7 @@ var moonboots = new Moonboots({
     }
 });
 
-server.listen(8080, function (){
+server.listen(process.env.PORT || 3000, function (){
     primus.save(__dirname +'/client/lib/primus.js'); //In case any transformer config stuff changed, re-compile the client library
     console.log('Server is running');
 })
