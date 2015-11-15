@@ -1,4 +1,4 @@
-var Crafty = require('Crafty-develop');
+var Crafty = require('./vendor/Crafty-develop');
 var Components = require('./components');
 var config = require('./game_config.json');
 var stage = config.stage;
