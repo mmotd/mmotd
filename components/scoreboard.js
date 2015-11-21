@@ -9,8 +9,6 @@ module.exports = {
         this.y = 10;
         
         this.textFont({ size: '16px' });
-        
-        this.text("Score: 0");
     },
     
     setText: function(newText) {

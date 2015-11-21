@@ -2,7 +2,7 @@ var express = require('express')();
 var server = require('http').Server(express);
 var Primus = require('primus');
 var Moonboots = require('moonboots-express');
-var Crafty = require('./vendor/Crafty-develop')();
+var Crafty = require('craftyjs')();
 var Components = require('./components');
 var _ = require('lodash');
 
@@ -77,12 +77,20 @@ var updateLoop = setInterval(function(){
     });
      
  }, 14);
+ 
+ var scoreboard = {};
+ function updateScoreboard(userid, score) {
+     scoreboard[userid] = { "userid":userid, "score":score };
+ }
 
 //Should this logic even happen after a 'connection' event?
 primus.on('connection', function(spark){
     
+    
+    
     /** Process Spark from Clients **/
     spark.on('data', function(data){
+        console.log(data);
 
         switch (data.event) {
             
@@ -99,9 +107,10 @@ primus.on('connection', function(spark){
                 
             case 'heroHitMob':
                 console.log('server.js: received event: ' + data.event + ' id: ' + data.id + ' score: ' + data.score);
+                updateScoreboard(data.id,data.score);
                 primus.write({
-                    worldEvent: 'heroHitMob',
-                    hero: data
+                    "worldEvent": "scoreboardUpdate",
+                    "scoreboard": scoreboard
                 });
                 break;
             
@@ -159,13 +168,13 @@ var moonboots = new Moonboots({
             __dirname + '/public/css/app.css'
         ],*/
         libraries: [
-            __dirname + '/client/lib/primus.js'
+            __dirname + '/client/primus.js'
         ]
     }
 });
 
 server.listen(process.env.PORT || 3000, function (){
-    primus.save(__dirname +'/client/lib/primus.js'); //In case any transformer config stuff changed, re-compile the client library
+    primus.save(__dirname +'/client/primus.js'); //In case any transformer config stuff changed, re-compile the client library
     console.log('Server is running');
 })
 .on('error', function(err) {

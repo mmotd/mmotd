@@ -1,4 +1,4 @@
-var Crafty = require('./vendor/Crafty-develop');
+var Crafty = require('craftyjs');
 var Components = require('./components');
 var config = require('./game_config.json');
 var stage = config.stage;
@@ -34,7 +34,6 @@ module.exports = function(){
     });
     
     primus.on('data', function(data){
-        //console.log(data);
         // process worldState updateLoop from server
         if (typeof data.world != 'undefined') {
             //console.log("client received updateLoop from server");
@@ -67,12 +66,6 @@ module.exports = function(){
                             hero.destroy();
                         }
                     });
-                break;
-            
-            case 'heroHitMob':
-                if (data.hero.id == myHero.id) {
-                    myScoreboard.setText("Score: " + data.hero.score);
-                }
                 break;
                 
             case 'heroMoved':
@@ -117,6 +110,15 @@ module.exports = function(){
                         element.destroy();
                     }
                 });
+                break;
+                
+            case 'scoreboardUpdate':
+                var leaderboard = _.sortBy(data.scoreboard,"score").reverse();
+                var leaderboardView = _.map(leaderboard,function(user) {
+                    return {"user":user.userid.toString().substr(0,6), "score":user.score};
+                });
+                console.log(leaderboardView);
+                myScoreboard.setText(JSON.stringify(leaderboardView,null,2));
                 break;
         }
         
