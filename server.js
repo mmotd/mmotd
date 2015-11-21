@@ -2,7 +2,7 @@ var express = require('express')();
 var server = require('http').Server(express);
 var Primus = require('primus');
 var Moonboots = require('moonboots-express');
-var Crafty = require('./vendor/Crafty-develop')();
+var Crafty = require('craftyjs')();
 var Components = require('./components');
 var _ = require('lodash');
 
@@ -80,6 +80,8 @@ var updateLoop = setInterval(function(){
 
 //Should this logic even happen after a 'connection' event?
 primus.on('connection', function(spark){
+    
+    
     
     /** Process Spark from Clients **/
     spark.on('data', function(data){

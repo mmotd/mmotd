@@ -1,4 +1,4 @@
-var Crafty = require('./vendor/Crafty-develop');
+var Crafty = require('craftyjs');
 var Components = require('./components');
 var config = require('./game_config.json');
 var stage = config.stage;
@@ -34,7 +34,6 @@ module.exports = function(){
     });
     
     primus.on('data', function(data){
-        //console.log(data);
         // process worldState updateLoop from server
         if (typeof data.world != 'undefined') {
             //console.log("client received updateLoop from server");
