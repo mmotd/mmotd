@@ -68,12 +68,6 @@ module.exports = function(){
                         }
                     });
                 break;
-            
-            case 'heroHitMob':
-                if (data.hero.id == myHero.id) {
-                    myScoreboard.setText("Score: " + data.hero.score);
-                }
-                break;
                 
             case 'heroMoved':
                 //console.log('hero moved' + data.hero);
@@ -117,6 +111,15 @@ module.exports = function(){
                         element.destroy();
                     }
                 });
+                break;
+                
+            case 'scoreboardUpdate':
+                var leaderboard = _.sortBy(data.scoreboard,"score").reverse();
+                var leaderboardView = _.map(leaderboard,function(user) {
+                    return {"user":user.userid.toString().substr(0,6), "score":user.score};
+                });
+                console.log(leaderboardView);
+                myScoreboard.setText(JSON.stringify(leaderboardView,null,2));
                 break;
         }
         
