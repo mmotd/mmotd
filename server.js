@@ -168,13 +168,13 @@ var moonboots = new Moonboots({
             __dirname + '/public/css/app.css'
         ],*/
         libraries: [
-            __dirname + '/client/lib/primus.js'
+            __dirname + '/client/primus.js'
         ]
     }
 });
 
 server.listen(process.env.PORT || 3000, function (){
-    primus.save(__dirname +'/client/lib/primus.js'); //In case any transformer config stuff changed, re-compile the client library
+    primus.save(__dirname +'/client/primus.js'); //In case any transformer config stuff changed, re-compile the client library
     console.log('Server is running');
 })
 .on('error', function(err) {
