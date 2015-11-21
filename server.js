@@ -90,7 +90,6 @@ primus.on('connection', function(spark){
     
     /** Process Spark from Clients **/
     spark.on('data', function(data){
-        console.log(data);
 
         switch (data.event) {
             
@@ -98,7 +97,6 @@ primus.on('connection', function(spark){
              * Hero Events
              */
             case 'heroDisconnect':
-                console.log('server.js: received event: ' + data.event + ' id: ' + data.id);
                 primus.write({
                     worldEvent: 'heroDisconnect',
                     hero: data
@@ -106,7 +104,6 @@ primus.on('connection', function(spark){
                 break;
                 
             case 'heroHitMob':
-                console.log('server.js: received event: ' + data.event + ' id: ' + data.id + ' score: ' + data.score);
                 updateScoreboard(data.id,data.score);
                 primus.write({
                     "worldEvent": "scoreboardUpdate",
@@ -115,7 +112,6 @@ primus.on('connection', function(spark){
                 break;
             
             case 'heroMoved':
-                //console.log('server.js: received event: ' + data.event + ' id: ' + data.id + ' name: ' + data.name + ' x:'+data.x + ' y:'+data.y);
                 primus.write({
                     worldEvent: 'heroMoved',
                     hero: data
@@ -126,15 +122,11 @@ primus.on('connection', function(spark){
              * Mob Events
              */
             case 'mobHit':
-                //console.log('server.js: mob hit! id: ' + data.id);
                 world.entities.forEach(function(el, index, array) {
                     if (el.type === 'mob') {
                         if (data.id == el.object.id) {
-                            console.log("obj: " + el.object.hitpoints);
                             array[index].object.destroy();
-                            //el.object.destroy();
                             array.splice(index,1);
-                            //console.log('server.js: destroyed mobs[id=' + index + ']');
                             primus.write({
                                 worldEvent:'deadMob',
                                 id : el.object.id
