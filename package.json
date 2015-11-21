@@ -9,6 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "craftyjs": "^0.7.0",
     "engine.io": "^1.5.1",
     "express": "^4.13.0",
     "lodash": "^3.10.1",
