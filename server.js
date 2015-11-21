@@ -77,6 +77,11 @@ var updateLoop = setInterval(function(){
     });
      
  }, 14);
+ 
+ var scoreboard = {};
+ function updateScoreboard(userid, score) {
+     scoreboard[userid] = { "userid":userid, "score":score };
+ }
 
 //Should this logic even happen after a 'connection' event?
 primus.on('connection', function(spark){
@@ -85,6 +90,7 @@ primus.on('connection', function(spark){
     
     /** Process Spark from Clients **/
     spark.on('data', function(data){
+        console.log(data);
 
         switch (data.event) {
             
@@ -101,9 +107,10 @@ primus.on('connection', function(spark){
                 
             case 'heroHitMob':
                 console.log('server.js: received event: ' + data.event + ' id: ' + data.id + ' score: ' + data.score);
+                updateScoreboard(data.id,data.score);
                 primus.write({
-                    worldEvent: 'heroHitMob',
-                    hero: data
+                    "worldEvent": "scoreboardUpdate",
+                    "scoreboard": scoreboard
                 });
                 break;
             
