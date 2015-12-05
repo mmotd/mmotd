@@ -16,6 +16,10 @@ module.exports = function(){
     var hud = document.createElement('div');
     document.getElementsByTagName('body')[0].appendChild(hud);
     
+    var scoreboardDiv = document.createElement('div');
+    scoreboardDiv.id = 'scoreboard';
+    document.getElementsByTagName('body')[0].appendChild(scoreboardDiv);
+    
     //Crafty.load()
     //Load component definitions (keep eye on this to make sure it loads all base compoenents before UI)
     _.forEach(Components, function(v,k){
@@ -129,7 +133,7 @@ module.exports = function(){
                     return {"user":user.userid.toString().substr(0,6), "score":user.score};
                 });
                 console.log(leaderboardView);
-                myScoreboard.setText(JSON.stringify(leaderboardView,null,2));
+                scoreboardDiv.innerHTML = JSON.stringify(leaderboardView,null,2);
                 break;
         }
         
