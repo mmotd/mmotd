@@ -30,8 +30,8 @@ function makeMob() {
     world.entities.push({
         'type' : 'mob',
         'object' : Crafty.e('Mob').xy(
-            Math.floor(Math.random() * config.stage.width),
-            Math.floor(Math.random() * config.stage.height)
+            Math.floor((Math.random()-0.5) * config.stage.width),
+            Math.floor((Math.random()-0.5) * config.stage.height)
         )
     });
 }
@@ -47,8 +47,8 @@ var newMobInterval = setInterval(function() {
         world.entities.push({
             'type' : 'mob',
             'object' : Crafty.e('Mob').xy(
-                Math.floor(Math.random() * config.stage.width),
-                Math.floor(Math.random() * config.stage.height)
+                Math.floor((Math.random()-0.5) * config.stage.width),
+                Math.floor((Math.random()-0.5) * config.stage.height)
             )
     });
     }

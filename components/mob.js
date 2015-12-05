@@ -28,11 +28,11 @@ module.exports = {
         
          this.bind("EnterFrame", function(eventData) {
             // Y
-            if (this.y < stage.height/2) { this.y = this.y + 10 * (eventData.dt / 1000); }
-            else if (this.y > stage.height/2) { this.y = this.y - 10 * (eventData.dt / 1000); }
+            if (this.y < 0) { this.y = this.y + 10 * (eventData.dt / 1000); }
+            else if (this.y > 0) { this.y = this.y - 10 * (eventData.dt / 1000); }
             // X
-            if (this.x < stage.width/2) { this.x = this.x + 10 * (eventData.dt / 1000); }
-            else if (this.x > stage.width/2) { this.x = this.x - 10 * (eventData.dt / 1000); }
+            if (this.x < 0) { this.x = this.x + 10 * (eventData.dt / 1000); }
+            else if (this.x > 0) { this.x = this.x - 10 * (eventData.dt / 1000); }
         });
     },
     
