@@ -21,17 +21,9 @@ module.exports = function(){
     var heros = [];
     var mobs = [];
 
+    Crafty.e('CenterMarker, 2D, DOM, Canvas, Color').attr({x:0,y:0,w:20,h:20}).color('#6C3108');
     var myHero = Crafty.e('MyHero');
     var myScoreboard = Crafty.e('Scoreboard');
-    
-    Crafty.e('CenterMarker, 2D, DOM, Canvas, Color')
-        .attr({
-        x: 0,
-        y: 0,
-        w: 20,
-        h: 20
-    })
-        .color('#6C3108');
     
     Crafty.viewport.clampToEntities = false
     Crafty.viewport.follow(myHero, 0, 0);
