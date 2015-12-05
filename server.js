@@ -65,9 +65,11 @@ var updateLoop = setInterval(function(){
 }, 14);
  
 /** Scoreboard **/
-var scoreboard = {};
-function updateScoreboard(userid, score) {
-    scoreboard[userid] = { "userid":userid, "score":score };
+var scoreboard = {
+    data : {},
+    update: function(userid, score) {
+        this.data[userid] = { "userid":userid, "score":score };
+    }
 }
 
 //@TODO Should this logic even happen after a 'connection' event?
@@ -86,10 +88,10 @@ primus.on('connection', function(spark){
                 break;
                 
             case 'heroHitMob':
-                updateScoreboard(data.id,data.score);
+                scoreboard.update(data.id,data.score);
                 primus.write({
                     "worldEvent": "scoreboardUpdate",
-                    "scoreboard": scoreboard
+                    "scoreboard": scoreboard.data
                 });
                 break;
             
