@@ -133,7 +133,6 @@ module.exports = function(){
                     return {"user":user.userid.toString().substr(0,6), "score":user.score};
                 });
                 console.log(leaderboardView);
-                myScoreboard.setText(JSON.stringify(leaderboardView,null,2));
                 scoreboardDiv.innerHTML = JSON.stringify(leaderboardView,null,2);
                 break;
         }
