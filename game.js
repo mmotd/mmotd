@@ -25,7 +25,7 @@ module.exports = function(){
     var myScoreboard = Crafty.e('Scoreboard');
     
     Crafty.viewport.clampToEntities = false
-    Crafty.viewport.follow(myHero, -60, 0);
+    Crafty.viewport.follow(myHero, 0, 0);
     
     //console.log(Crafty.settings.get('autoPause'));
     
