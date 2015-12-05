@@ -26,13 +26,14 @@ module.exports = {
             this.destroy();
         });
         
-         this.bind("EnterFrame", function(eventData) {
+        this.target = { x: 0, y: 0 };
+        this.bind("EnterFrame", function(eventData){ 
             // Y
-            if (this.y < 0) { this.y = this.y + 10 * (eventData.dt / 1000); }
-            else if (this.y > 0) { this.y = this.y - 10 * (eventData.dt / 1000); }
+            if (this.y < this.target.y) { this.y = this.y + 10 * (eventData.dt / 1000); }
+            else if (this.y > this.target.y) { this.y = this.y - 10 * (eventData.dt / 1000); }
             // X
-            if (this.x < 0) { this.x = this.x + 10 * (eventData.dt / 1000); }
-            else if (this.x > 0) { this.x = this.x - 10 * (eventData.dt / 1000); }
+            if (this.x < this.target.x) { this.x = this.x + 10 * (eventData.dt / 1000); }
+            else if (this.x > this.target.x) { this.x = this.x - 10 * (eventData.dt / 1000); }
         });
     },
     
@@ -46,6 +47,12 @@ module.exports = {
     
     setId: function(id) {
         this.id = id;
+        return this; // return entity allows method chaining
+    },
+    
+    setTarget: function(x, y) {
+        if (typeof x === "number") { this.target.x = x; }
+        if (typeof y === "number") { this.target.y = y; }
         return this; // return entity allows method chaining
     }
 }

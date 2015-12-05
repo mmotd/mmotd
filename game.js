@@ -66,6 +66,10 @@ module.exports = function(){
                 if (!inClientMobs) {
                     mobs.push(Crafty.e('MobUI').setId(worldMob.id).xy(worldMob.x,worldMob.y));
                 }
+                
+                mobs.forEach(function(clientMob) {
+                    clientMob.setTarget(worldMob.target.x,worldMob.target.y)
+                });
 
             });
         }

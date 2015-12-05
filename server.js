@@ -22,6 +22,7 @@ _.forEach(Components, function(v,k){
 var world = {
     entities: []
 };
+var recentHero = {}; //temporary
 
 /** World Update Loop **/
 // This is mostly handled by Crafty?
@@ -52,15 +53,21 @@ var newMobInterval = setInterval(function() {
 /** Client Update Loop **/
 // Send world update to clients
 var updateLoop = setInterval(function(){
+    world.entities.forEach(function(el, index, obj) {
+        if (el.type == 'mob') {
+            obj[index].object.setTarget(recentHero.x,recentHero.y);
+        }
+    });
+    
     var worldUpdate = _.cloneDeep(world);
     
     worldUpdate.entities.forEach(function(el, index, obj) {
         if (el.type == 'mob') {
-           el.object = _.pick(el.object, 'id', 'x', 'y');
+            el.object = _.pick(el.object, 'id', 'x', 'y', 'target');
         }
         obj[index] = el;
     });
-    
+
     primus.write({ world: worldUpdate });
 }, 14);
  
@@ -96,6 +103,7 @@ primus.on('connection', function(spark){
                 break;
             
             case 'heroMoved':
+                recentHero = data;
                 primus.write({
                     worldEvent: 'heroMoved',
                     hero: data
