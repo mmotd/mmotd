@@ -18,9 +18,7 @@ _.forEach(Components, function(v,k){
 });
 
 
-/**
- * World
- */
+/** World **/
 var world = {
     entities: []
 };
@@ -38,6 +36,7 @@ function makeMob() {
     });
 }
 
+/** Mob hatchery **/
 var newMobInterval = setInterval(function() {
     var mob_count = _.countBy(world.entities, function(entity) {
         return entity['type'] == 'mob';
@@ -56,10 +55,6 @@ var newMobInterval = setInterval(function() {
     
 }, 1000);
     
-/** Server Update Loop **/
-// Process queue of messages from clients:
-// processQueue();
-    
 /** Client Update Loop **/
 // Send world update to clients
 var updateLoop = setInterval(function(){
@@ -72,30 +67,23 @@ var updateLoop = setInterval(function(){
         obj[index] = el;
     });
     
-    primus.write({
-        world: worldUpdate
-    });
-     
- }, 14);
+    primus.write({ world: worldUpdate });
+}, 14);
  
- var scoreboard = {};
- function updateScoreboard(userid, score) {
-     scoreboard[userid] = { "userid":userid, "score":score };
- }
+/** Scoreboard **/
+var scoreboard = {};
+function updateScoreboard(userid, score) {
+    scoreboard[userid] = { "userid":userid, "score":score };
+}
 
-//Should this logic even happen after a 'connection' event?
+//@TODO Should this logic even happen after a 'connection' event?
 primus.on('connection', function(spark){
-    
-    
     
     /** Process Spark from Clients **/
     spark.on('data', function(data){
 
         switch (data.event) {
             
-            /**
-             * Hero Events
-             */
             case 'heroDisconnect':
                 primus.write({
                     worldEvent: 'heroDisconnect',
@@ -118,9 +106,6 @@ primus.on('connection', function(spark){
                 });
                 break;
             
-            /**
-             * Mob Events
-             */
             case 'mobHit':
                 world.entities.forEach(function(el, index, array) {
                     if (el.type === 'mob') {
@@ -134,31 +119,20 @@ primus.on('connection', function(spark){
                         }    
                     }
                 });
-                
                 break;
                 
         }
-
     });
-    
 });
 
-primus.on('disconnection', function (spark) {
-    
-});
+//primus.on('disconnection', function (spark) { });
 
-
-/**
- * Non game stuff
- */
+/** Non game stuff **/
 var moonboots = new Moonboots({
     server: express,
     moonboots: {
         main: __dirname + '/client/app.js',
         developmentMode: true,
-        /*stylesheets: [
-            __dirname + '/public/css/app.css'
-        ],*/
         libraries: [
             __dirname + '/client/primus.js'
         ]
