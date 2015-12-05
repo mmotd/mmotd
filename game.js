@@ -46,30 +46,27 @@ module.exports = function(){
     });
     
     primus.on('data', function(data){
-        // process worldState updateLoop from server
+        
+        // process world update from server
         if (typeof data.world != 'undefined') {
-            //console.log("client received updateLoop from server");
-            
-            worldMobs = _.filter(data.world.entities, function(entity) {
-                return entity.type === 'mob';
-            });
-            worldMobObjects = _.pluck(worldMobs, 'object');
-                
-            /*** Mobs Update ***/
-            worldMobObjects.forEach(function(worldMob) {
-                var inClientMobs = null;
-                mobs.forEach(function(clientMob) {
-                    if (clientMob.id == worldMob.id) {
-                        inClientMobs = true;
-                    }
-                });
-                if (!inClientMobs) {
+            // filter incoming data into local world object
+            var world = {
+                mobs : _.pluck(_.filter(data.world.entities, {'type': 'mob'}), 'object')
+            };
+
+            // update mobs
+            world.mobs.forEach(function(worldMob) {
+                // if client doesn't know of this mob add it
+                if (!_.some(mobs, function(mob) {
+                    return mob.id === worldMob.id; // returns false if none found
+                })) {
                     mobs.push(Crafty.e('MobUI').setId(worldMob.id).xy(worldMob.x,worldMob.y));
                 }
                 
-                mobs.forEach(function(clientMob) {
-                    clientMob.setTarget(worldMob.target.x,worldMob.target.y)
-                });
+                _.find(mobs, function(mob) {
+                    return mob.id === worldMob.id;
+                })
+                    .setTarget(worldMob.target.x,worldMob.target.y);
 
             });
         }
