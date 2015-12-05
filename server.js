@@ -30,8 +30,8 @@ function makeMob() {
     world.entities.push({
         'type' : 'mob',
         'object' : Crafty.e('Mob').xy(
-            Math.floor(Math.random() * config.stage.width),
-            Math.floor(Math.random() * config.stage.height)
+            Math.floor((Math.random()-0.5) * config.stage.width),
+            Math.floor((Math.random()-0.5) * config.stage.height)
         )
     });
 }
@@ -44,13 +44,7 @@ var newMobInterval = setInterval(function() {
     mob_count = parseInt(mob_count ? mob_count : 0);
     
     if (mob_count < 10) {
-        world.entities.push({
-            'type' : 'mob',
-            'object' : Crafty.e('Mob').xy(
-                Math.floor(Math.random() * config.stage.width),
-                Math.floor(Math.random() * config.stage.height)
-            )
-    });
+        makeMob();
     }
     
 }, 1000);

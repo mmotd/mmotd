@@ -12,6 +12,10 @@ module.exports = function(){
     // Initialize Crafty
     Crafty.init(stage.width, stage.height);
     Crafty.background('#00FF00 url(http://fc02.deviantart.net/fs70/f/2013/162/0/1/grass_tile_1_by_blackyinwolf1234-d68mmht.png) repeat');
+    
+    var hud = document.createElement('div');
+    document.getElementsByTagName('body')[0].appendChild(hud);
+    
     //Crafty.load()
     //Load component definitions (keep eye on this to make sure it loads all base compoenents before UI)
     _.forEach(Components, function(v,k){
@@ -21,11 +25,12 @@ module.exports = function(){
     var heros = [];
     var mobs = [];
 
+    Crafty.e('CenterMarker, 2D, DOM, Canvas, Color').attr({x:0,y:0,w:20,h:20}).color('#6C3108');
     var myHero = Crafty.e('MyHero');
     var myScoreboard = Crafty.e('Scoreboard');
     
     Crafty.viewport.clampToEntities = false
-    Crafty.viewport.follow(myHero, -60, 0);
+    Crafty.viewport.follow(myHero, 0, 0);
     
     //console.log(Crafty.settings.get('autoPause'));
     
@@ -73,6 +78,9 @@ module.exports = function(){
                 
             case 'heroMoved':
                 //console.log('hero moved' + data.hero);
+                if (data.hero.id == myHero.id) {
+                    hud.innerHTML = '('+Math.round(data.hero.x)+','+Math.round(data.hero.y)+')';
+                }
                 if (data.hero.id != myHero.id) {
                     var inHeros = null;
                     heros.forEach(function(hero) {

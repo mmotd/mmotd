@@ -14,8 +14,8 @@ module.exports = {
         this.id = Math.random();
         //console.log('new hero created with id: '+this.id);
         
-        this.x = stage.width/2;
-        this.y = stage.height/2;
+        this.x = Math.random() * 40;
+        this.y = Math.random() * 40;
         
         this.w = 20;
         this.h = 20;
